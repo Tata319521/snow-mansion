@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>暴风雪山庄 · 调查入口</title>
+  <style>
+    :root{
+      --bg1:#070b18;
+      --bg2:#131a33;
+      --card: rgba(15,23,48,.72);
+      --stroke: rgba(124,243,255,.18);
+      --text:#e9eeff;
+      --muted:#b9c2ff;
+      --accent:#7cf3ff;
+      --accent2:#ff7ad9;
+      --shadow: 0 22px 80px rgba(0,0,0,.55);
+      --radius: 18px;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "PingFang SC","Hiragino Sans GB","Microsoft YaHei", Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:var(--sans);
+      color:var(--text);
+      overflow:hidden;
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(124,243,255,.16), transparent 55%),
+        radial-gradient(900px 600px at 80% 20%, rgba(255,122,217,.12), transparent 60%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+
+    /* Snow layer */
+    .snow{
+      position:fixed; inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index:1;
+      filter: drop-shadow(0 10px 24px rgba(0,0,0,.25));
+    }
+    .flake{
+      position:absolute;
+      top:-12vh;
+      left:0;
+      will-change: transform;
+      opacity:.9;
+      user-select:none;
+      animation-name: fall;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      transform: translateY(-12vh);
+    }
+    @keyframes fall{
+      to{ transform: translateY(120vh) translateX(var(--drift)); }
+    }
+
+    .wrap{
+      width:min(860px, 100%);
+      position:relative;
+      z-index:2;
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid rgba(124,243,255,.18);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    .head{
+      padding:24px 22px 14px;
+      border-bottom:1px solid rgba(124,243,255,.12);
+    }
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(124,243,255,.18);
+      background: rgba(15,23,48,.35);
+      color: var(--muted);
+      font-size:12px;
+      letter-spacing:.2px;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow:0 0 18px rgba(124,243,255,.35);
+    }
+
+    h1{
+      margin:14px 0 10px;
+      font-size:28px;
+      letter-spacing:.6px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+    .sub{
+      margin:0;
+      color: var(--muted);
+      line-height:1.8;
+      font-size:14px;
+    }
+
+    .body{
+      padding:18px 22px 22px;
+      display:grid;
+      gap:14px;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 720px){
+      .row{grid-template-columns:1fr}
+    }
+
+    .field{
+      display:grid;
+      gap:8px;
+    }
+    label{
+      font-size:12px;
+      color: var(--muted);
+    }
+    input{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(124,243,255,.14);
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      outline:none;
+      font-size:14px;
+    }
+    input::placeholder{color: rgba(185,194,255,.7)}
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:6px;
+    }
+    button{
+      border:1px solid rgba(124,243,255,.28);
+      background: linear-gradient(135deg, rgba(124,243,255,.16), rgba(255,122,217,.10));
+      color:var(--text);
+      padding:11px 14px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:800;
+      letter-spacing:.3px;
+      transition:.15s ease;
+      box-shadow: 0 14px 36px rgba(0,0,0,.28);
+    }
+    button:hover{transform: translateY(-1px);}
+    button.secondary{
+      border-color: rgba(124,243,255,.14);
+      background: rgba(15,23,48,.30);
+      color: var(--muted);
+      box-shadow:none;
+      font-weight:700;
+    }
+
+    .note{
+      font-family: var(--mono);
+      color: rgba(215,221,255,.92);
+      background: rgba(15,23,48,.26);
+      border: 1px solid rgba(124,243,255,.12);
+      border-radius: 14px;
+      padding: 12px 12px;
+      font-size: 12.5px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+
+    /* slow reveal */
+    .reveal{
+      opacity:0;
+      transform: translateY(10px);
+      animation: reveal 1.2s ease forwards;
+    }
+    .d1{ animation-delay: .7s; }
+    .d2{ animation-delay: .6s; }
+    .d3{ animation-delay: 1.0s; }
+    .d4{ animation-delay: 1.25s; }
+    @keyframes reveal{
+      to{ opacity:1; transform:none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="snow" id="snow"></div>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="head">
+        <div class="kicker reveal d1">
+          <span class="dot"></span>
+          <span>调查入口 · 暴风雪山庄</span>
+        </div>
+        <h1 class="reveal d2">暴风雪山庄：秘密房间调查</h1>
+        <p class="sub reveal d3">作为传奇调查员的你被老师安排了在大雪天去郊区采风的任务，等待你的将会是什么呢...?</p>
+      </div>
+
+      <div class="body">
+        <div class="row reveal d3">
+          <div class="field">
+            <label for="player">调查员代号</label>
+            <input id="player" type="text" placeholder="老咩羊（你脑中神奇地浮现了这个名字）" maxlength="20" />
+          </div>
+        
+        </div>
+
+        <div class="actions reveal d4">
+          <button id="startBtn">开始</button>
+          <button class="secondary" id="clearBtn">清空输入</button>
+        </div>
+
+        <div class="note reveal d4">
+提示：
+- 点击“开始”会跳转到游戏页面（默认跳转到）
+- 名字会自动带入游戏
+- 哎做的有点粗糙大家凑合着看，里面全是烂梗，求怜爱。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 生成雪花
+    const snow = document.getElementById("snow");
+    const N = 70;
+
+    function makeFlake(){
+      const s = document.createElement("span");
+      s.className = "flake";
+      s.textContent = "❄";
+
+      const left = Math.random() * 100;
+      const size = 10 + Math.random() * 18;
+      const dur = 6 + Math.random() * 10;
+      const drift = (Math.random() * 80 - 40) + "px";
+      const opacity = 0.25 + Math.random() * 0.7;
+
+      s.style.left = left + "vw";
+      s.style.fontSize = size + "px";
+      s.style.opacity = opacity;
+      s.style.setProperty("--drift", drift);
+      s.style.animationDuration = dur + "s";
+      s.style.animationDelay = (-Math.random() * dur) + "s";
+
+      snow.appendChild(s);
+    }
+
+    for(let i=0;i<N;i++) makeFlake();
+
+    // 跳转并带入名字
+    const PREFILL_KEY = "snow_mansion_prefill";
+
+    document.getElementById("startBtn").addEventListener("click", ()=>{
+      const playerName = (document.getElementById("player").value || "").trim() || "调查员";
+      const friendName = (document.getElementById("friend").value || "").trim();
+
+      localStorage.setItem(PREFILL_KEY, JSON.stringify({ playerName, friendName }));
+
+      // 这里写你上面那个游戏文件名：建议保存为 game.html
+      window.location.href = "./game.html";
+    });
+
+    document.getElementById("startBtn").addEventListener("click", ()=>{
+      const playerName = (document.getElementById("player").value || "").trim() || "调查员";
+      localStorage.setItem("snow_mansion_prefill", JSON.stringify({ playerName }));
+
+  // 关键：跳转到 index.html（你的第二页）
+  window.location.href = "./index.html";
+    });
+  </script>
+</body>
+</html>

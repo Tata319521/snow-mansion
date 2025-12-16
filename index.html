@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>雪中洋房：秘密房间调查</title>
+  <style>
+    :root{
+      --bg1:#0b1020;
+      --bg2:#151c36;
+      --card:rgba(15,23,48,.78);
+      --stroke:rgba(60,76,130,.55);
+      --text:#e9eeff;
+      --muted:#b9c2ff;
+      --accent:#7cf3ff;
+      --accent2:#ff7ad9;
+      --good:#65ff9a;
+      --bad:#ff6b6b;
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --radius:18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "PingFang SC","Hiragino Sans GB","Microsoft YaHei", Arial, sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      min-height:100vh;
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(124,243,255,.18), transparent 55%),
+        radial-gradient(900px 600px at 80% 20%, rgba(255,122,217,.14), transparent 60%),
+        radial-gradient(900px 600px at 50% 100%, rgba(101,255,154,.10), transparent 55%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+    }
+    .wrap{width:min(1100px, 100%); position:relative;}
+    .topbar{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      margin-bottom:14px; opacity:.92; font-size:13px;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:10px;
+      border:1px solid rgba(124,243,255,.25);
+      background:rgba(15,23,48,.55);
+      padding:10px 12px;
+      border-radius:999px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      backdrop-filter: blur(8px);
+    }
+    .dot{width:10px;height:10px;border-radius:50%;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      box-shadow:0 0 18px rgba(124,243,255,.45);}
+    .small{color:var(--muted)}
+    .card{
+      background:var(--card);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(10px);
+    }
+    header{padding:20px 22px 14px;border-bottom:1px solid rgba(60,76,130,.45);}
+    header h1{margin:0 0 8px;font-size:20px;letter-spacing:.5px}
+    header p{margin:0;color:var(--muted);line-height:1.6}
+    .progress{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin-top:10px;}
+    .bar{flex:1;height:8px;border-radius:999px;background:rgba(60,76,130,.45);overflow:hidden;}
+    .bar>i{display:block;height:100%;width:0%;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      border-radius:999px;transition:width .25s ease;}
+    main{padding:18px 22px 22px;}
+    .layout{display:grid;gap:14px;grid-template-columns: 1.35fr .65fr;}
+    @media (max-width: 980px){ .layout{grid-template-columns:1fr;} }
+
+    .panel{
+      border:1px solid rgba(60,76,130,.45);
+      background:rgba(8,12,26,.35);
+      border-radius:14px;
+      padding:14px;
+    }
+    .panel h3{margin:0 0 8px;font-size:14px;color:var(--muted);font-weight:700;letter-spacing:.3px}
+    .mono{font-family:var(--mono);font-size:12.8px;color:#d7ddff;white-space:pre-wrap;line-height:1.55}
+    .hint{margin-top:10px;color:var(--muted);font-size:13px;line-height:1.7}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+    button{
+      border:1px solid rgba(124,243,255,.35);
+      background: linear-gradient(135deg, rgba(124,243,255,.18), rgba(255,122,217,.12));
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:700;
+      letter-spacing:.2px;
+      transition:.15s ease;
+      box-shadow: 0 12px 30px rgba(0,0,0,.25);
+    }
+    button:hover{transform: translateY(-1px);}
+    button.secondary{
+      border-color: rgba(60,76,130,.55);
+      background: rgba(15,23,48,.35);
+      color: var(--muted);
+      box-shadow:none;
+      font-weight:650;
+    }
+    button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+    .field{display:grid;gap:8px;margin: 8px 0;}
+    input[type="text"], input[type="password"]{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(60,76,130,.55);
+      background: rgba(0,0,0,.16);
+      color:var(--text);
+      outline:none;
+      font-family:var(--sans);
+      font-size:14px;
+    }
+    input::placeholder{color: rgba(185,194,255,.7)}
+    input[readonly]{opacity:.95; cursor:not-allowed;}
+
+    .roomTitle{font-size:16px;font-weight:800;margin:0 0 6px;}
+    .grid{
+      display:grid; gap:10px;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      margin-top:12px;
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns: repeat(2, minmax(0,1fr));} }
+    @media (max-width: 520px){ .grid{grid-template-columns: 1fr;} }
+
+    .item{
+      border:1px solid rgba(60,76,130,.45);
+      background: rgba(15,23,48,.28);
+      border-radius:14px;
+      padding:12px;
+      cursor:pointer;
+      transition:.15s ease;
+      min-height:70px;
+      display:flex; gap:10px; align-items:flex-start;
+    }
+    .item:hover{transform: translateY(-1px); border-color: rgba(124,243,255,.32);}
+    .icon{width:26px;height:26px;border-radius:10px;display:grid;place-items:center;
+      background:rgba(124,243,255,.12);border:1px solid rgba(124,243,255,.22);flex:0 0 auto;}
+    .item b{display:block;font-size:13.5px}
+    .item .meta{color:var(--muted);font-size:12.2px;line-height:1.5;margin-top:2px}
+    .tag{
+      display:inline-block;
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid rgba(60,76,130,.5);
+      color:var(--muted);
+      background:rgba(15,23,48,.22);
+      margin-top:6px;
+    }
+
+    .msg{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px dashed rgba(124,243,255,.35);
+      background: rgba(15,23,48,.25);
+      color: var(--text);
+      display:none;
+    }
+    .msg.show{display:block;}
+    .msg.good{border-color: rgba(101,255,154,.45)}
+    .msg.bad{border-color: rgba(255,107,107,.45)}
+
+    .inv{
+      display:grid; gap:10px;
+    }
+    .invItem{
+      border:1px solid rgba(60,76,130,.45);
+      background: rgba(15,23,48,.25);
+      border-radius:14px;
+      padding:10px 12px;
+      cursor:pointer;
+      transition:.15s ease;
+    }
+    .invItem:hover{transform:translateY(-1px);border-color:rgba(124,243,255,.32)}
+    .invItem b{font-size:13px}
+    .invItem .meta{color:var(--muted);font-size:12px;line-height:1.5;margin-top:2px}
+
+    /* modal */
+    .modalMask{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center; justify-content:center;
+      padding:18px;
+      z-index:999;
+    }
+    .modalMask.show{display:flex;}
+    .modal{
+      width:min(760px, 100%);
+      background: rgba(12,18,40,.92);
+      border:1px solid rgba(124,243,255,.22);
+      border-radius: 18px;
+      box-shadow: 0 22px 80px rgba(0,0,0,.55);
+      overflow:hidden;
+      backdrop-filter: blur(12px);
+    }
+    .modalHead{
+      padding:14px 16px;
+      border-bottom:1px solid rgba(60,76,130,.45);
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
+    }
+    .modalHead b{font-size:14px}
+    .closeBtn{
+      border:1px solid rgba(60,76,130,.55);
+      background: rgba(15,23,48,.32);
+      color: var(--muted);
+      padding:8px 10px;
+      border-radius: 12px;
+      box-shadow:none;
+      font-weight:700;
+    }
+    .modalBody{padding:14px 16px;}
+    .modalBody .mono{font-size:13px}
+    .modalActions{padding:14px 16px;border-top:1px solid rgba(60,76,130,.45);display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+    .kbd{
+      font-family: var(--mono);
+      padding:2px 6px;
+      border-radius:8px;
+      border:1px solid rgba(60,76,130,.55);
+      background: rgba(15,23,48,.25);
+      color:#d7ddff;
+      font-size:12px;
+    }
+
+    /* confetti */
+    .confetti{
+      pointer-events:none;
+      position:absolute; inset:-12px -12px -12px -12px;
+      overflow:hidden;
+      display:none;
+    }
+    .confetti.show{display:block;}
+    .confetti span{
+      position:absolute;
+      top:-20px;
+      font-size:18px;
+      opacity:.95;
+      animation: fall linear forwards;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,.35));
+    }
+    @keyframes fall{
+      to{ transform: translateY(110vh) rotate(360deg); opacity: .95; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="confetti" id="confetti"></div>
+
+  <div class="topbar">
+    <div class="badge">
+      <span class="dot"></span>
+      <div>
+        <div style="font-weight:800;">雪中洋房 · 秘密房间调查</div>
+        <div class="small">这里似乎很温暖...</div>
+      </div>
+    </div>
+    <div class="small">进度：<span id="progressText">0%</span></div>
+  </div>
+
+  <div class="card">
+    <header>
+      <h1 id="gameTitle">暴雪中，一座巨大的建筑静静的矗立在你面前，而你御寒的只有怀里的...饺子?</h1>
+      <p id="gameSubtitle">你在被冻成冰块前发现了这个沉默的房子，它从雪幕深处浮出来，像一头搁浅的巨鲸骨架，尖顶刺进低压的云层。但你管不了这些了，温暖的烛火在窗口吸引着你。</p>
+      <div class="progress">
+        <div class="bar"><i id="barFill"></i></div>
+        <span class="small" id="barLabel">准备中…</span>
+      </div>
+    </header>
+
+    <main>
+      <div class="layout">
+        <!-- LEFT -->
+        <section class="panel">
+          <h3>当前房间</h3>
+          <div class="mono">
+            <div class="roomTitle" id="roomName"></div>
+            <div id="roomDesc"></div>
+          </div>
+
+          <div class="grid" id="itemsGrid"></div>
+
+          <div class="msg" id="mainMsg"></div>
+          <div class="actions">
+            <button id="btnNew">新开一局</button>
+          </div>
+          <div class="hint" id="hintBox"></div>
+        </section>
+
+        <!-- RIGHT -->
+        <aside class="panel">
+          <h3>调查员信息</h3>
+          <div class="field">
+            <input id="playerName" type="text" placeholder="调查员代号" maxlength="18" readonly />
+            <div class="hint">来到这里是正确的选择吗？</div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <h3>背包</h3>
+          <div class="inv" id="invList"></div>
+
+          <div style="height:10px"></div>
+
+          <h3>调查日志</h3>
+          <div class="mono" id="logBox" style="max-height:260px;overflow:auto;"></div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modalMask" id="modalMask" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modalHead">
+      <b id="modalTitle">...</b>
+      <button class="closeBtn" id="modalClose">关闭</button>
+    </div>
+    <div class="modalBody">
+      <div class="mono" id="modalBody"></div>
+      <div class="field" id="modalInputWrap" style="display:none;margin-top:12px;">
+        <input id="modalInput" type="password" maxlength="8" placeholder="在此输入…" />
+        <div class="hint" id="modalInputHint"></div>
+      </div>
+    </div>
+    <div class="modalActions" id="modalActions"></div>
+  </div>
+</div>
+
+<script>
+/**
+ * =======================
+ * 你只需要改这里：CONFIG
+ * =======================
+ */
+const CONFIG = {
+  title: "雪中洋房：秘密房间调查",
+  subtitle: "你在被冻成冰块前发现了这个沉默的房子，它从雪幕深处浮出来，像一头搁浅的巨鲸骨架，尖顶刺进低压的云层。但你管不了这些了，温暖的烛火在窗口吸引着你。",
+  defaultPlayer: "调查员",
+  defaultFriend: "她",
+  birthdayDateText: "12月18日",
+  examDateText: "12月20日、12月21日",
+  lockboxCode: "1218",
+  key1Shape: "它躺在碎瓷与尘灰里。你捏起它，指尖先被一阵雪一样的冰冷咬住。钥匙通体银白、细长，金属表面有细密拉丝纹路，像被风雪反复磨过。钥匙头是镂空雪花，六瓣对称，边缘微利，内侧刻着几道几乎看不见的刻线。",
+  key2Shape: "它呈温暖的金色，表面不是镜面，而带着微微的雾面光泽；钥匙柄是圆头，边缘做成月桂叶的浮雕，摸上去有细小的起伏，像一圈悄悄加冕的冠。",
+  cutsceneToBirthday: [
+  "你把钥匙插进锁孔。金属摩擦声很清楚。门缝里透出一线冷光，空气里有一股淡淡的蜡味。你刚要推门，身后走廊传来两下很轻的脚步声，随即又安静下来。",
+  "门锁“咔”地一声弹开。下一秒，墙里传来连续的机械震动，像齿轮在快速啮合。地板轻微发颤，吊灯晃了一下，灯光忽明忽暗。你听见某处有东西滑动，像暗门在移动。",
+  "你刚迈进门槛，背后突然有人靠近。麻袋从头顶套下，布料粗糙，带着灰尘味。有人按住你的肩膀和手腕，你来不及挣扎，后颈一阵钝痛，意识迅速变得模糊。",
+  "你醒来时坐在一把椅子上，手腕被绑在扶手上，绳结很紧。房间里开着一盏昏黄的灯，墙角贴着彩带和气球，地上散着彩纸。空气里有奶油和蜡烛的味道，但现场安静得不自然。",
+  "门被猛地推开，几个人走进来，戴着面罩或围巾，声音故意压低。有人说：\"别乱动。\" 另一个人靠近你，敲了敲椅背：\"你今天要配合一下。\" 他们围成半圈，像是在等你反应。",
+  "灯忽然全亮。有人先笑出声，摘下面罩，其他人也跟着摘下来。有人把绳子解开，拍了拍你的肩膀。桌上被推出一个蛋糕，蜡烛点起来。大家一起说：\"生日快乐！\""
+],
+
+  birthdayBlessing: (friendName)=>(
+`🎂生日快乐！
+这里是日歌！虽然做的很不完美很草率啊啊啊总之祝你生日快乐！想不到在这里跳祝福吧哦嘻嘻嘻。考研顺利！祝看到这里准备考研的同学也考研成功！哼哼。求考完出来聚餐。`
+  ),
+  examBlessing: (friendName)=>(
+`📚看道这里要考研的朋友们考研加油！
+主播们不要给自己太大压力，尽力就好，wzf都在祝福你们...!
+老咩羊我们喜欢你呀喜欢你（吟唱）
+🌟 最后祝大家：思路清晰、笔下生花、发挥超常、顺利上岸！`
+  ),
+  hints: {
+    hall: "提示：很多家具都能点。",
+    birthday: "提示：这里是“生日快乐房间”。剧情会推进到你拿到第二把钥匙。",
+    exam: "提示：这里是“考研胜利房间”。你可以把祝福复制发给她。",
+  },
+  rooms: {
+    hall: {
+      name: "雪中洋房 · 一层大厅",
+      desc: "一层大厅很冷，空气里带着潮湿的木头味和一点蜡烛残烟的气味。窗框结霜，玻璃外是厚雪和模糊的树影，风从缝隙里钻进来，时不时带起一阵轻响。地板是深色木纹，靠近门口的位置有几道被拖拽过的浅痕。\n\n墙上挂着一只老式挂钟，钟摆还在缓慢摆动，秒针声在安静时格外清楚。家具摆得整齐却不自然：旧沙发、书架、壁炉、角落的花瓶都像被人刻意放在该在的位置。地毯边缘翘起一点，柜子抽屉的缝里塞着木屑，墙上的挂画微微歪斜。\n\n你的目标：找到第一把钥匙。",
+    },
+    birthday: {
+      name: "秘密房间 · 生日快乐！",
+      desc: "房间不大，灯光偏暗，只有一盏暖黄的小灯亮着，角落还有几盏没点燃的蜡烛。墙上贴着彩带和气球，桌上摆着纸帽、彩纸和一张写了一半的卡片，但摆放得过于整齐，像临时布置又刻意隐藏。你坐在椅子上，手腕被绑在扶手上，绳结很紧，手指能感觉到麻。门被关上后，外面的声音几乎听不见，只剩下墙里偶尔传来的细小震动声。空气里有奶油、蜡和一点塑料气球的味道，让人一时分不清这是惊吓还是庆祝。",
+    },
+    exam: {
+      name: "秘密房间 · 考研胜利！",
+      desc: "门打开后，光线一下子变得明亮许多。房间里有一张书桌和一把椅子，台灯关着，桌面摆着本子和几张纸，一堆资料旁边还有几杯饮料。甚至还有一个苹果笔记本。",
+    },
+  }
+};
+
+const $ = (s)=>document.querySelector(s);
+const $$ = (s)=>Array.from(document.querySelectorAll(s));
+
+const GAME = {
+  room: "hall",
+  playerName: CONFIG.defaultPlayer,
+  friendName: CONFIG.defaultFriend,
+  inv: {},
+  flags: {},
+  log: [],
+  progress: 0,
+};
+
+const ITEMS = {
+  hall: [
+    {
+      id:"window", icon:"❄️", name:"结霜的窗",
+      short:"窗外是雪，窗内是你。",
+      desc:"你凑近玻璃，霜纹挡住了大半视线。窗外只有雪和黑色树影，风吹过时窗框会轻轻抖一下。等等，为什么有黑影在动...?",
+      actions: [{label:"贴近查看", run:()=>log("你贴近窗户，冰冷的霜气扑面而来。但你什么都没有看见")}],
+    },
+    {
+      id:"sofa", icon:"🛋️", name:"旧沙发",
+      short:"弹簧吱呀，像在笑。",
+      desc:"沙发表面有些潮，坐垫边缘磨得发白。缝隙里卡着几粒干掉的松针和一小段彩带碎屑，像是有人在这里停留过。你按下去，弹簧发出很轻的响声。",
+      actions: [{label:"翻找坐垫", run:()=>log("你翻开坐垫，只有陈旧的尘味。")}],
+    },
+    {
+      id:"rug", icon:"🧶", name:"花纹地毯",
+      short:"一块可疑的隆起。",
+      desc:()=> GAME.flags.rugLifted
+        ? "地毯被掀开后，木地板上留着一道浅浅的划痕，边缘还有被压出的印子。你用手摸了摸，木纹里夹着细灰，像是有什么东西常被拖动或藏过。"
+        : "地毯边缘翘起一点，像被人匆忙掀过又放回去。花纹里夹着些细雪和灰尘，靠近隆起处摸上去有硬物顶着，位置很不自然。",
+      actions: ()=> {
+        if(!GAME.flags.rugLifted){
+          return [
+            {label:"掀开地毯", run:()=>{
+              GAME.flags.rugLifted = true;
+              give("prybar");
+              log("你掀开地毯，下面竟压着一根撬棍。");
+              msg("mainMsg","你获得：撬棍。","good");
+              render();
+            }}
+          ];
+        }
+        return [{label:"观察地板划痕", run:()=>log("你蹲下观察划痕，像有什么重物曾被拖动。")}];
+      }
+    },
+    {
+      id:"drawer", icon:"🗄️", name:"柜子抽屉",
+      short:"卡死了，像在抵抗。",
+      desc:()=> GAME.flags.drawerOpened
+        ? "抽屉已经被撬开。\n纸条散发着...香甜的气息?"
+        : "抽屉缝隙里塞满木屑，似乎被硬物卡住。\n哐当哐当，你摇晃了一下。",
+      actions: ()=> {
+        if(GAME.flags.drawerOpened){
+          return [{label:"再检查一次", run:()=>log("你再次检查抽屉，没有新的发现。")}];
+        }
+        if(has("prybar")){
+          return [
+            {label:"用撬棍撬开", run:()=>{
+              GAME.flags.drawerOpened = true;
+              give("note_code");
+              log("你用撬棍撬开抽屉，里面有一张折得很整齐的纸条。");
+              msg("mainMsg","你找到：纸条","good");
+              render();
+            }}
+          ];
+        }
+        return [{label:"徒手拉扯", run:()=>log("你用力拉扯，抽屉纹丝不动。也许需要工具。")}];
+      }
+    },
+    {
+      id:"painting", icon:"🖼️", name:"墙上挂画",
+      short:"画框歪了半厘米。",
+      desc:()=> GAME.flags.paintingMoved
+        ? "挂画已被你移开，后方露出一道暗格。你凭借着传奇调查员的体质觉得这里有隐秘的机关"
+        : "一幅旧画：是...一个熟悉的画像，你好像在朋友的著作《情人万年》里见过他。\n朋友的著作很火，这你知道，但出现在雪夜洋房里也太诡异了吧！？",
+      actions: ()=> {
+        if(!GAME.flags.paintingMoved){
+          return [
+            {label:"把画移开", run:()=>{
+              GAME.flags.paintingMoved = true;
+              log("你把挂画移开，墙后竟藏着一个小小的密码箱。");
+              msg("mainMsg","挂画后出现：密码箱。","good");
+              render();
+            }},
+            {label:"轻敲画框", run:()=>log("你轻敲画框，回声空洞，像墙后有夹层。")}
+          ];
+        }
+        return [{label:"查看暗格边缘", run:()=>log("你摸到暗格边缘的金属凉意，像某种机关。")}];
+      }
+    },
+    {
+      id:"lockbox", icon:"🔒", name:"密码箱",
+      short:"需要4位数字。",
+      hidden: ()=> !GAME.flags.paintingMoved,
+      desc:()=> GAME.flags.lockboxOpened
+        ? "密码箱已经打开。\n一个很重工看起来kp不会允许出现在这里的东西映入你眼帘。"
+        : "一个金属密码箱，转盘旁沾着冷凝的水汽。\n有着反复磨损的痕迹\n\n提示：输入 4 位数字。",
+      actions: ()=> {
+        if(GAME.flags.lockboxOpened){
+          return [{label:"查看空箱", run:()=>log("你望着空箱，像望着一段已被解开的秘密。")}];
+        }
+        return [
+          {label:"输入密码", run:()=>openCodePrompt({
+            title:"输入密码（4位数字）",
+            hint:"就在今天",
+            onSubmit:(code)=>{
+              if(code === CONFIG.lockboxCode){
+                GAME.flags.lockboxOpened = true;
+                give("hammer");
+                give("note_hint");
+                log("咔哒——密码箱弹开。里面有一把小手枪和另一张纸条。");
+                msg("mainMsg","密码正确！你获得：小手枪、纸条提示。","good");
+                render();
+                closeModal();
+              }else{
+                log("你输入了密码，但密码箱毫无反应。");
+                msg("mainMsg","密码不对。再找找线索。","bad");
+                shakeMsg();
+              }
+            }
+          })}
+        ];
+      }
+    },
+    {
+      id:"bookshelf", icon:"📚", name:"书架",
+      short:"某本书突出一点。",
+      desc:"天啊这就是《情人万年》金装版+作者签名，还有刘景州的画像。",
+      actions: [
+        {label:"抽出那本突出的书", run:()=>{
+          log("你抽出那本书，灰尘像雪一样飘落。你咳嗽了一下，感觉有点刻意。");
+          msg("mainMsg","一张纸条飘落：wzf能不能快点给我吃产品饭...","good");
+        }},
+        {label:"扫视书脊", run:()=>log("你扫视书脊，书名像一串沉默的证词。")}
+      ]
+    },
+    {
+      id:"fireplace", icon:"🔥", name:"壁炉",
+      short:"灰烬温度不对劲。",
+      desc:"火像是刚被熄灭，客厅内温度在缓慢的下降...等等...为什么壁炉里会有气球碎片啊！",
+      actions: [
+        {label:"拨开灰烬", run:()=>log("你拨开灰烬，指尖触到一丝诡异的温热。")},
+        {label:"查看壁炉台面", run:()=>log("你看见壁炉台面有轻微的刮痕，像被什么锐物划过。")}
+      ]
+    },
+    {
+      id:"vase", icon:"🏺", name:"毫无破绽的铜盒",
+      short:"硬得不合常理",
+      desc:()=> GAME.flags.vaseSmashed
+        ? "盒子已经碎成一地。\n一个钥匙掉了出来"
+        : "不太像普通盒子，它太硬了，拒绝了你物理学圣剑的访问。它需要令kp更恐惧的东西来打开。",
+      actions: ()=> {
+        if(GAME.flags.vaseSmashed){
+          return [{label:"避开碎片", run:()=>log("你小心绕开碎片，脚步声在空房间里回响。")}];
+        }
+        if(has("hammer")){
+          return [
+            {label:"用手枪击碎", run:()=>{
+              GAME.flags.vaseSmashed = true;
+              give("key1");
+              log("你抬手一击——盒子碎裂，狼藉中露出一把奇怪的钥匙。");
+              msg("mainMsg","你获得：第一把钥匙，或许通向未知的空间。","good");
+              render();
+            }},
+            {label:"轻敲测试", run:()=>log("你轻敲铜盒，声音空脆，里面像藏着硬物。")}
+          ];
+        }
+        return [{label:"徒手摇晃", run:()=>log("你摇了摇，里面似乎有东西，但他被改装的像家1的py，十分坚固不可侵犯。")}];
+      }
+    },
+    {
+      id:"door_secret", icon:"🚪", name:"通往秘密房间的门",
+      short:"门缝里漏出一丝冷光。",
+      desc:()=> has("key1")
+        ? "门锁看起来能用钥匙打开。\n门背后传来细细簌簌的响声。"
+        : "门把手冰冷，锁孔深处像一只眼睛。你看了看，没看见什么东西\n\n需要：第一把钥匙。",
+      actions: ()=> {
+        if(has("key1")){
+          return [{label:"用第一把钥匙开门", run:()=>{
+            log("你把第一把钥匙插入锁孔。");
+            transitionToBirthday();
+          }}];
+        }
+        return [{label:"试着拧动", run:()=>log("门纹丝不动。你需要钥匙。")}];
+      }
+    },
+    { id:"clock", icon:"🕰️", name:"挂钟", short:"秒针停在某一刻。", desc:"滴答滴答，像是柯南里才有老式挂钟，你打了个寒战。",
+      actions:[{label:"贴近听", run:()=>log("你贴近挂钟，听见齿轮卡住的细响。")}]},
+    { id:"cabinet", icon:"🧳", name:"杂物柜", short:"上面落满灰尘", desc:"木质花纹很典雅，但味道有些不妙，你有些不想靠近它。",
+      actions:[{label:"打开看看", run:()=>log("你打开杂物柜：里面是几件随意丢弃的作案工具：手铐，皮鞭，喂这都是什么啊！")}]},
+  ],
+
+  birthday: [
+    {
+      id:"chair", icon:"🪑", name:"椅子与束缚",
+      short:"绳结很不专业。",
+      desc:"你被绑在椅子上，身上的危险物品被没收，你想着是不是嬷的人太多有了报应。",
+      actions:[
+        {label:"挣扎", run:()=>log("你挣扎了两下，绳结被你挣脱开了。")},
+        {label:"观察周围", run:()=>log("你很冷静，即使有报应你也不会放弃嬷你家0的。")}
+      ]
+    },
+    {
+      id:"decor", icon:"🎈", name:"诡异的生日装饰",
+      short:"彩带乱七八糟",
+      desc:"大家送的礼物都乱乱地摆放在桌子上，但wzf爱好的多样性让桌子混乱的不忍直视。",
+      actions:[{label:"检查彩带", run:()=>log("你发现彩带上写着小字：我想看你产品。")}]
+    },
+    {
+      id:"friends", icon:"😈", name:"“凶神恶煞”的人影",
+      short:"她们在看着你。",
+      desc:"你听到门后传来乱七八糟的说话声。\n【“我们要不要让她写完十篇产品文再放出来？”】",
+      actions:[{label:"抬头直视", run:()=>log("你抬头怒视他们，几个人影哧溜一下消失了。")}]
+    },
+    {
+      id:"cake", icon:"🍰", name:"蛋糕",
+      short:"甜味在空气里。",
+      desc:"感觉像一个巨大的陷阱，上面插满了大家画的贺图，甚至最不会画画的wzf也歪歪扭扭画了一只大绵羊。",
+      actions: ()=> {
+        if(has("key2")) return [{label:"拿起叉子", run:()=>log("你已经拿到第二把钥匙，蛋糕成了纯粹的快乐。")}];
+        return [
+          {label:"切开蛋糕", run:()=>{
+            give("key2");
+            log("你切开蛋糕，里面竟藏着第二把钥匙。");
+            msg("mainMsg","你获得：第二把钥匙。咋还有活..你无语地想。","good");
+            render();
+          }}
+        ];
+      }
+    },
+    {
+      id:"door_exam", icon:"🚪", name:"通往第二个秘密房间的门",
+      short:"门后感觉有阴谋。",
+      desc:()=> has("key2")
+        ? "锁孔正在等待第二把钥匙。"
+        : "门被反锁。\n需要：第二把钥匙。",
+      actions: ()=> has("key2")
+        ? [{label:"用第二把钥匙开门", run:()=>{ log("你握紧第二把钥匙，走向最后的房间。"); GAME.room="exam"; GAME.progress=92; render(); }}]
+        : [{label:"推门", run:()=>log("门不动。你需要第二把钥匙。")}]
+    }
+  ],
+
+  exam: [
+    {
+      id:"desk", icon:"📝", name:"桌面与笔记",
+      short:"字迹像战斗痕迹。",
+      desc:"wzf在这里给所有考研的朋友们都留了祝福。",
+      actions:[{label:"翻翻便签", run:()=>log("便签里夹着寿司郎小木船海底捞餐厅的优惠券，饿货来袭。")}]
+    },
+    {
+      id:"lamp", icon:"💡", name:"台灯",
+      short:"熄灭着，但灯泡有点烫",
+      desc:"你的朋友老日对灯泡动了点手脚。",
+      actions:[{label:"点亮", run:()=>log("灯光亮起，阴影退后一步。不知道启动了什么开关，灯泡开始唱俄罗斯小南娘和刀马刀马。")}]
+    },
+    {
+      id:"letter", icon:"📨", name:"电脑",
+      short:"看着眼熟。",
+      desc:"你有种不好的预感。",
+      actions:[{label:"启动电脑", run:()=>{ log("你就知道，东海给你暂停在了王格林二阶段，还给你开了一个txt标上了键位。"); showEndingModal(); }}]
+    },
+    {
+      id:"trophy", icon:"🏆", name:"灵魂大师形状的奖杯",
+      short:"有点萌萌",
+      desc:"作者写到这已经爱上灵魂大师了。有人懂吗。",
+      actions:[{label:"摸一摸", run:()=>log("你掉了两滴血...为什么是两滴！")}]
+    },
+  ],
+
+  inv: {
+    prybar: {name:"撬棍", desc:"一根生锈的撬棍，传奇物理学圣剑。你感到很奇怪，但你还是拿上了它。"},
+    note_code: {name:"纸条1", desc:()=>(
+`纸条上写着：对你重要的日期。`
+    )},
+    note_hint: {name:"纸条2", desc:()=>(
+`另一张纸条：\n上面示意你要砸开那个铜盒。`
+    )},
+    hammer: {name:"手枪", desc:"这不是kp乐意看到的东西\n...但十分有用!"},
+    key1: {name:"第一把钥匙", desc:()=>(
+`第一把钥匙：${CONFIG.key1Shape}\n不管怎么说先前进试试。`
+    )},
+    key2: {name:"第二把钥匙", desc:()=>(
+`第二把钥匙：${CONFIG.key2Shape}\n你不禁好奇还能整出什么活儿。`
+    )},
+  }
+};
+
+// ---------- UI helpers ----------
+function msg(id, text, type){
+  const el = $("#"+id);
+  el.textContent = text;
+  el.classList.remove("good","bad","show");
+  if(type) el.classList.add(type);
+  el.classList.add("show");
+}
+function clearMsg(id){
+  const el = $("#"+id);
+  el.classList.remove("show","good","bad");
+  el.textContent="";
+}
+function shakeMsg(){
+  const el = $("#mainMsg");
+  el.style.transform="translateX(-2px)";
+  setTimeout(()=>el.style.transform="translateX(2px)",60);
+  setTimeout(()=>el.style.transform="",120);
+}
+function log(text){
+  const t = `[${new Date().toLocaleTimeString()}] ${text}`;
+  GAME.log.unshift(t);
+  renderLog();
+  autoProgress();
+}
+function autoProgress(){
+  let p = 0;
+  if(GAME.room === "hall") p = 15;
+  if(GAME.flags.rugLifted) p = 25;
+  if(GAME.flags.drawerOpened) p = 35;
+  if(GAME.flags.paintingMoved) p = 45;
+  if(GAME.flags.lockboxOpened) p = 60;
+  if(GAME.flags.vaseSmashed) p = 75;
+  if(GAME.room === "birthday") p = Math.max(p, 82);
+  if(has("key2")) p = Math.max(p, 88);
+  if(GAME.room === "exam") p = Math.max(p, 100);
+  GAME.progress = Math.max(GAME.progress, p);
+}
+function setProgressUI(){
+  const pct = Math.max(0, Math.min(100, GAME.progress));
+  $("#barFill").style.width = pct + "%";
+  $("#progressText").textContent = pct + "%";
+  $("#barLabel").textContent = pct < 100 ? "调查进行中…" : "已完成 ✅";
+}
+function has(id){ return !!GAME.inv[id]; }
+function give(id){
+  GAME.inv[id] = true;
+  renderInv();
+}
+
+function renderInv(){
+  const list = $("#invList");
+  const ids = Object.keys(GAME.inv);
+  if(ids.length === 0){
+    list.innerHTML = `<div class="mono">（空）\n背包空空的，心冷冷的</div>`;
+    return;
+  }
+  list.innerHTML = ids.map(id=>{
+    const item = ITEMS.inv[id];
+    return `
+      <div class="invItem" data-inv="${id}">
+        <b>${item?.name ?? id}</b>
+        <div class="meta">点击查看详情</div>
+      </div>
+    `;
+  }).join("");
+  $$(".invItem").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const id = el.dataset.inv;
+      openItemModal(id);
+    });
+  });
+}
+
+function renderLog(){
+  $("#logBox").textContent = GAME.log.slice(0, 40).join("\n") || "（暂无）\n【在这里写：你想要的日志开头】";
+}
+
+// ---------- Modal ----------
+function openModal({title, body, actions, input=false, inputHint="", inputPlaceholder="在此输入…"}){
+  $("#modalTitle").textContent = title;
+  $("#modalBody").innerHTML = body;
+  $("#modalActions").innerHTML = "";
+  $("#modalInputWrap").style.display = input ? "block" : "none";
+  $("#modalInputHint").textContent = inputHint || "";
+  $("#modalInput").value = "";
+  $("#modalInput").placeholder = inputPlaceholder;
+
+  (actions || []).forEach(a=>{
+    const btn = document.createElement("button");
+    btn.textContent = a.label;
+    btn.className = a.secondary ? "secondary" : "";
+    btn.onclick = a.run;
+    $("#modalActions").appendChild(btn);
+  });
+
+  $("#modalMask").classList.add("show");
+  $("#modalMask").setAttribute("aria-hidden","false");
+}
+function closeModal(){
+  $("#modalMask").classList.remove("show");
+  $("#modalMask").setAttribute("aria-hidden","true");
+}
+$("#modalClose").addEventListener("click", closeModal);
+$("#modalMask").addEventListener("click", (e)=>{ if(e.target.id==="modalMask") closeModal(); });
+
+function openCodePrompt({title, hint, onSubmit}){
+  openModal({
+    title,
+    body:`<div>请输入密码：</div><div class="hint">${hint}</div>`,
+    input:true,
+    inputHint:"格式建议：4位数字。",
+    inputPlaceholder:"很明显",
+    actions:[
+      {label:"确认", run:()=>{
+        const code = $("#modalInput").value.trim();
+        onSubmit(code);
+      }},
+      {label:"取消", secondary:true, run:closeModal}
+    ]
+  });
+  setTimeout(()=>$("#modalInput").focus(), 50);
+}
+
+function openItemModal(invId){
+  const it = ITEMS.inv[invId];
+  const title = it?.name ?? invId;
+  const desc = (typeof it.desc === "function") ? it.desc() : (it.desc ?? "");
+  openModal({
+    title,
+    body:`<div class="mono">${escapeHTML(desc)}</div>`,
+    actions:[{label:"关闭", secondary:true, run:closeModal}]
+  });
+}
+
+function escapeHTML(str){
+  return String(str)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+}
+
+// ---------- Room rendering ----------
+function roomItems(){
+  const arr = ITEMS[GAME.room] || [];
+  return arr.filter(it=> !(typeof it.hidden==="function" ? it.hidden() : it.hidden));
+}
+
+function openRoomItem(itemId){
+  const it = roomItems().find(x=>x.id===itemId);
+  if(!it) return;
+
+  const desc = (typeof it.desc==="function") ? it.desc() : it.desc;
+  const actions = (typeof it.actions==="function") ? it.actions() : (it.actions || []);
+  openModal({
+    title: it.name,
+    body: `<div class="mono">${escapeHTML(desc || "")}</div>`,
+    actions: [
+      ...actions.map(a=>({label:a.label, run:()=>{ a.run(); }})),
+      
+    ]
+  });
+}
+
+function renderRoom(){
+  const room = CONFIG.rooms[GAME.room];
+  $("#roomName").textContent = room?.name || GAME.room;
+  $("#roomDesc").textContent = room?.desc || "";
+
+  const grid = $("#itemsGrid");
+  const items = roomItems();
+  grid.innerHTML = items.map(it=>`
+      <div class="item" data-item="${it.id}">
+        <div class="icon">${it.icon || "?"}</div>
+        <div>
+          <b>${it.name}</b>
+          <div class="meta">${it.short || ""}</div>
+          ${it.hidden ? "" : `<div class="tag">可互动</div>`}
+        </div>
+      </div>
+  `).join("");
+
+  $$(".item").forEach(el=>{
+    el.addEventListener("click", ()=>openRoomItem(el.dataset.item));
+  });
+
+  $("#hintBox").innerHTML = CONFIG.hints[GAME.room] || "【在这里写：你想显示的提示】";
+}
+
+function renderHeader(){
+  document.title = CONFIG.title;
+  $("#gameTitle").textContent = "暴雪中，一座巨大的建筑静静的矗立在你面前，而你御寒的只有怀里的...饺子?";
+  $("#gameSubtitle").textContent = CONFIG.subtitle;
+}
+
+function renderNames(){
+  const p = $("#playerName");
+  if(p) p.value = GAME.playerName || CONFIG.defaultPlayer;
+}
+
+function render(){
+  renderHeader();
+  renderNames();
+  renderRoom();
+  renderInv();
+  renderLog();
+  autoProgress();
+  setProgressUI();
+}
+
+// ---------- Cutscenes ----------
+function transitionToBirthday(){
+  closeModal();
+  GAME.room = "birthday";
+  GAME.progress = Math.max(GAME.progress, 80);
+
+  const lines = CONFIG.cutsceneToBirthday.slice();
+  let idx = 0;
+
+  function next(){
+    if(idx >= lines.length){
+      closeModal();
+      openModal({
+        title:"祝你生日快乐呀生日快乐！！",
+        body:`<div class="mono">${escapeHTML(CONFIG.birthdayBlessing(GAME.friendName))}</div>`,
+        actions:[{label:"继续（去拿第二把钥匙）", run:()=>{ closeModal(); render(); }}]
+      });
+      render();
+      return;
+    }
+
+    openModal({
+      title:`剧情推进（${idx+1}/${lines.length}）`,
+      body:`<div class="mono">${escapeHTML(lines[idx])}</div>`,
+      actions:[
+        {label:"继续", run:()=>{ idx++; next(); }},
+        {label:"跳过剧情", secondary:true, run:()=>{ idx = lines.length; next(); }},
+      ]
+    });
+  }
+  next();
+}
+
+// ---------- Ending ----------
+function launchConfetti(){
+  const box = $("#confetti");
+  box.innerHTML = "";
+  const emojis = ["✨","🎉","🌟","💫","🎈","🍀","🪄","🏆"];
+  const n = 50;
+  for(let i=0;i<n;i++){
+    const s = document.createElement("span");
+    s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    s.style.left = Math.random()*100 + "%";
+    s.style.animationDuration = (3 + Math.random()*2.8) + "s";
+    s.style.animationDelay = (Math.random()*0.6) + "s";
+    s.style.fontSize = (14 + Math.random()*18) + "px";
+    box.appendChild(s);
+  }
+  box.classList.add("show");
+  setTimeout(()=>box.classList.remove("show"), 5200);
+}
+
+function showEndingModal(){
+  launchConfetti();
+  const text = CONFIG.examBlessing(GAME.friendName);
+  openModal({
+    title:"你理解完东海的键位，准备继续打洞洞骑士...在苦战王格林的时候有一个弹窗跳出，打断了你的回血过程。",
+    body:`<div class="mono">${escapeHTML(text)}</div>
+          <div class="hint">你可以复制这行字儿给咩老师发过去（咩老师本人可以当做没看到！（目移））。</div>`,
+    actions:[
+      {label:"复制祝福", run:async ()=>{
+        try{
+          await navigator.clipboard.writeText(text);
+          msg("mainMsg","复制成功喵","good");
+        }catch(e){
+          msg("mainMsg","复制失败（浏览器限制）。你可以手动选中复制。","bad");
+        }
+      }},
+      {label:"关闭", secondary:true, run:closeModal},
+    ]
+  });
+}
+
+// ---------- Reset ----------
+function reset(){
+  GAME.room = "hall";
+  GAME.playerName = CONFIG.defaultPlayer;
+  GAME.friendName = CONFIG.defaultFriend;
+  GAME.inv = {};
+  GAME.flags = {};
+  GAME.log = [];
+  GAME.progress = 0;
+  clearMsg("mainMsg");
+
+  // 从第一页（game.html）带入调查员名字：localStorage["snow_mansion_prefill"]
+  try{
+    const prefill = JSON.parse(localStorage.getItem("snow_mansion_prefill") || "null");
+    if(prefill?.playerName) GAME.playerName = prefill.playerName;
+  }catch(e){}
+
+  log("新调查开始：你踏入雪中洋房。");
+  render();
+}
+
+// ---------- Buttons ----------
+$("#btnNew").addEventListener("click", ()=>{ reset(); });
+
+// init
+reset();
+</script>
+</body>
+</html>
