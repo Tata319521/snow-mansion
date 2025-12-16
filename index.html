@@ -408,7 +408,7 @@ const GAME = {
   log: [],
   progress: 0,
 };
-
+let IN_CUTSCENE = false; 
 const ITEMS = {
   hall: [
     {
@@ -789,8 +789,15 @@ function closeModal(){
   $("#modalMask").classList.remove("show");
   $("#modalMask").setAttribute("aria-hidden","true");
 }
-$("#modalClose").addEventListener("click", closeModal);
-$("#modalMask").addEventListener("click", (e)=>{ if(e.target.id==="modalMask") closeModal(); });
+$("#modalClose").addEventListener("click", ()=>{
+  if(IN_CUTSCENE) return;
+  closeModal();
+});
+
+$("#modalMask").addEventListener("click", (e)=>{
+  if(IN_CUTSCENE) return;
+  if(e.target.id==="modalMask") closeModal();
+});
 
 function openCodePrompt({title, hint, onSubmit}){
   openModal({
@@ -901,12 +908,15 @@ function transitionToBirthday(){
   closeModal();
   GAME.room = "birthday";
   GAME.progress = Math.max(GAME.progress, 80);
+  IN_CUTSCENE = true;
+  render();  
 
   const lines = CONFIG.cutsceneToBirthday.slice();
   let idx = 0;
 
   function next(){
     if(idx >= lines.length){
+      IN_CUTSCENE = false;
       closeModal();
       openModal({
         title:"祝你生日快乐呀生日快乐！！",
@@ -971,6 +981,7 @@ function showEndingModal(){
 
 // ---------- Reset ----------
 function reset(){
+  IN_CUTSCENE = false;
   GAME.room = "hall";
   GAME.playerName = CONFIG.defaultPlayer;
   GAME.friendName = CONFIG.defaultFriend;
